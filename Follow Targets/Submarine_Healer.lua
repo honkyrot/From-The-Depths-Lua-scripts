@@ -2,12 +2,20 @@
 -- up to you to try it on other ships
 -- sub will prioritize healing the friendly ship with the lowest health fraction that is below the HEAL_THRESHOLD.
 
+-- Version 2.0
+-- Follows flagship if no injured surface ships are found if in fleet
+
+-- Version 1.0
+-- initial
+
 -- issues
 -- ignores closer ships that are more injured when locked onto a target, no matter the distance!
+-- airships cannot use six axis right now.
 
 --global
 local currentTargetId = -1
-local HEAL_THRESHOLD = 0.99 -- set your heal threshold
+local follow_flagship = true -- follows flagship IF there's no targets.
+local HEAL_THRESHOLD = 0.97 -- set your heal threshold
 local write_to_hud = false -- set to true to write logs to the HUD, false to write to the console
 
 function Update(I)
@@ -57,6 +65,22 @@ function Update(I)
             currentTargetId = bestTarget.Id
         end
     end
+
+    -- if we do not have a valid target, start 'follow_flagship' behavior
+    -- check if we are in a fleet
+    local fleetInfo = I.Fleet
+    local flagship = fleetInfo.Flagship
+
+    if bestTarget == nil and follow_flagship and flagship.Valid then
+        -- flagship cannot be itself
+        if flagship.Id ~= myId then
+            I:Log("Following Flagship: " .. flagship.BlueprintName)
+            bestTarget = flagship
+            currentTargetId = flagship.Id
+        else
+            I:Log("Flagship is self, not following.")
+        end
+    end
     
     -- movement to our target
     if bestTarget ~= nil then
@@ -83,7 +107,7 @@ function Update(I)
         I:SetPropulsionRequest(5, yawCommand)
         
         -- speed control based on distance to target
-        if dist > 40 then
+        if dist > 50 then
             I:SetPropulsionRequest(6, 1)
         else
             I:SetPropulsionRequest(6, 0.1)
