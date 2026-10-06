@@ -1,4 +1,5 @@
--- code for a submarine with heal tentacles that seek out friendly ships.
+-- code built for a submarine with heal tentacles that seek out friendly ships.
+-- up to you to try it on other ships
 -- sub will prioritize healing the friendly ship with the lowest health fraction that is below the HEAL_THRESHOLD.
 
 -- issues
@@ -7,7 +8,7 @@
 --global
 local currentTargetId = -1
 local HEAL_THRESHOLD = 0.99 -- set your heal threshold
-local write_to_hud = true
+local write_to_hud = false -- set to true to write logs to the HUD, false to write to the console
 
 function Update(I)
     I:ClearLogs()
